@@ -27,8 +27,9 @@ class ScriptManagerTest(unittest.TestCase):
   @mock.patch('google_compute_engine.metadata_scripts.script_manager.script_executor')
   @mock.patch('google_compute_engine.metadata_scripts.script_manager.shutil.rmtree')
   @mock.patch('google_compute_engine.metadata_scripts.script_manager.tempfile.mkdtemp')
-  def testRunScripts(self, mock_mkdir, mock_rmtree, mock_executor, mock_logger,
-                     mock_retriever):
+  def testRunScripts(
+      self, mock_mkdir, mock_rmtree, mock_executor, mock_logger,
+      mock_retriever):
     mock_logger_instance = mock.Mock()
     mock_logger.Logger.return_value = mock_logger_instance
     mock_retriever_instance = mock.Mock()
@@ -39,6 +40,7 @@ class ScriptManagerTest(unittest.TestCase):
     mocks.attach_mock(mock_executor, 'executor')
     mocks.attach_mock(mock_logger, 'logger')
     mocks.attach_mock(mock_retriever, 'retriever')
+    run_dir = '/var/run'
     script_type = 'test'
     script_name = '%s-script' % script_type
     script_prefix = '%s-' % script_type
@@ -47,13 +49,13 @@ class ScriptManagerTest(unittest.TestCase):
     mock_mkdir.return_value = test_dir
     mock_retriever_instance.GetScripts.return_value = test_dict
 
-    script_manager.ScriptManager(script_type)
+    script_manager.ScriptManager(script_type, run_dir=run_dir)
     expected_calls = [
         mock.call.logger.Logger(
             name=script_name, debug=False, facility=mock.ANY),
         mock.call.retriever.ScriptRetriever(mock_logger_instance, script_type),
         mock.call.executor.ScriptExecutor(mock_logger_instance, script_type),
-        mock.call.mkdir(prefix=script_prefix),
+        mock.call.mkdir(prefix=script_prefix, dir=run_dir),
         mock.call.logger.Logger().info(mock.ANY, script_type),
         mock.call.retriever.ScriptRetriever().GetScripts(test_dir),
         mock.call.executor.ScriptExecutor().RunScripts(test_dict),
