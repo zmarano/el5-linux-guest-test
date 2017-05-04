@@ -81,7 +81,7 @@ class AccountsUtils(object):
     with open(self.google_sudoers_file, 'a+') as group:
       """Check if the group is already in the sudoers file"""
       found = False
-      message = '%{0} ALL=(ALL:ALL) NOPASSWD:ALL'.format(
+      message = '%{0} ALL=(ALL:ALL) NOPASSWD:ALL\n'.format(
           self.google_sudoers_group)
       for line in group:
         if message in line:
